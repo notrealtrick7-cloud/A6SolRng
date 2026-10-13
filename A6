@@ -1,0 +1,827 @@
+-- ============================================================
+-- SOL RNG AUTO SCRIPT — AXIOM v3 (Era 1-29 / Eon 1 Updated)
+-- Data source: techwiser.com April 2026, sol-rng.fandom.com
+-- Tab 1: Auto Fish | Tab 2: Auto Craft
+-- Tab 3: Auto Boss | Tab 4: Auto Merchant | Tab 5: Auto Quest
+-- ============================================================
+
+local Players           = game:GetService("Players")
+local RunService        = game:GetService("RunService")
+local UserInputService  = game:GetService("UserInputService")
+local TweenService      = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MarketplaceService= game:GetService("MarketplaceService")
+local Workspace         = game:GetService("Workspace")
+
+local LP   = Players.LocalPlayer
+local Char = LP.Character or LP.CharacterAdded:Wait()
+local Root = Char:WaitForChild("HumanoidRootPart")
+local Hum  = Char:WaitForChild("Humanoid")
+
+LP.CharacterAdded:Connect(function(c)
+    Char = c; Root = c:WaitForChild("HumanoidRootPart"); Hum = c:WaitForChild("Humanoid")
+end)
+
+-- ============================================================
+-- REAL DATA — Updated April 2026
+-- Source: techwiser.com/roblox-sols-rng-all-gauntlets/
+--         techwiser.com/roblox-sols-rng-all-potions-guide/
+--         sol-rng.fandom.com/wiki/Fortune_Potions
+-- ============================================================
+
+-- RIGHT HAND GAUNTLETS — Jake's Workshop (mái đỏ gần spawn)
+local RIGHT_GAUNTLETS = {
+    {
+        name = "Luck Glove",
+        effect = "+25% Luck",
+        recipe = { Divinus=2, Crystallized=1, Rare=3 }
+    },
+    {
+        name = "Desire Glove",
+        effect = "+40% Luck",
+        recipe = { Rage=1, Diaboli=1, Ruby=1, Bleeding=1 }
+    },
+    {
+        name = "Lunar Device",
+        effect = "+15% Roll Speed",
+        recipe = { Rare=1, Lunar=1, Divinus=1 }
+    },
+    {
+        name = "Frozen Gauntlet",
+        effect = "+150% Luck, -25% Roll Speed",
+        recipe = { Glacier=1, Permafrost=1 }
+    },
+    {
+        name = "Solar Device",
+        effect = "+50% Luck",
+        recipe = { Solar=1, Rare=1, Divinus=1 }
+    },
+    {
+        name = "Aqua Device",
+        effect = "+10% Roll / +100% Roll Speed (Rainy)",
+        recipe = { Aquamarine=1, Nautilus=1, Aquatic=1 }
+    },
+    {
+        name = "Shining Star",
+        effect = "+50% Luck / +250% Luck (Starfall)",
+        recipe = { StarRider=1, STARLIGHT=1 }
+    },
+    {
+        name = "Eclipse Device",
+        effect = "+50% Luck, +15% Roll Speed",
+        recipe = { Eclipse=1, SolarDevice=1, LunarDevice=1 }
+    },
+    {
+        name = "Exo Gauntlet",
+        effect = "+100% Luck, +20% Roll Speed",
+        recipe = { Magnetic=2, Precious=2, Gilded=3, Sidereum=1, Exotic=1, Undead=1 }
+    },
+    {
+        name = "Windstorm Device",
+        effect = "+115% Luck, +25% Roll Speed",
+        recipe = { Wind=25, Aquatic=1, Stormal=1, Sidereum=4, Precious=12 }
+    },
+    {
+        name = "Subzero Device",
+        effect = "+150% Luck, +30% Roll Speed",
+        recipe = { Crystallized=600, Permafrost=2, Glacier=60, Aquatic=2, Sidereum=10, Magnetic=20, Precious=40 }
+    },
+    {
+        name = "Galactic Device",
+        effect = "+250% Luck, +30% Roll Speed",
+        recipe = { Solar=15, Sapphire=100, Galaxy=1, COMET=3, Magnetic=62, Diaboli=80, EclipseDevice=1, Lunar=15, GearBasing=25 }
+    },
+    {
+        name = "Volcanic Device",
+        effect = "+290% Luck, +35% Roll Speed",
+        recipe = { RageHeated=10, Hades=1, Diaboli=140, Bleeding=55, Rage=1000, SolarDevice=1, WindstormDevice=1, GearBasing=6 }
+    },
+    {
+        name = "Exoflex Device",
+        effect = "+340% Luck, +35% Roll Speed",
+        recipe = { Exotic=50, Arcane=3, Jade=5, Sidereum=350, Undead=37, STARLIGHT=80, Forbidden=2000, Aquamarine=1000, Rare=30000, ExoGauntlet=1 }
+    },
+    {
+        name = "Hologrammer",
+        effect = "+395% Luck, +35% Roll Speed, 15% item dupe chance",
+        recipe = { MagneticReversePolarity=2, Virtual=2, Kyawthuite=2, Twilight=3, COMET=30, STARLIGHT=80, PLAYER=600, RageHeated=145, Magnetic=830, Diaboli=1645, Forbidden=4000 }
+    },
+    {
+        name = "Ragnaroker",
+        effect = "+455% Luck, +40% Roll Speed, +45% (Hell/Windy/Rainy)",
+        recipe = { Zeus=3, Poseidon=3, Hades=3, StarRider=75, Lunar=175, Solar=175, RageHeated=230, Sidereum=800, LostSoul=350, Ash=1450, Rage=23000, Diaboli=3200 }
+    },
+    {
+        name = "Starshaper",
+        effect = "+700% Luck, +50% Roll Speed",
+        recipe = { GravitationalDevice=1, SolarDevice=15, GalacticDevice=1, LunarDevice=15, HyperVolt=3, STARSCOURGE=2, Gravitational=6, Galaxy=3, StarRider=200, COMET=90, Solar=1500, Lunar=1500, Sidereum=2700, Magnetic=5600 }
+    },
+    {
+        name = "Neurolyzer",
+        effect = "+850% Luck, +70% Roll Speed",
+        recipe = { CHROMATIC=2, Hologrammer=1, Origin=7, Virtual=18, Twilight=10, STARLIGHT=260, Flushed=2000, LostSoul=2500, UNBOUND=20, Exotic=400 }
+    },
+    {
+        name = "Genesis Drive",
+        effect = "+1200% Luck, +100% Roll Speed",
+        recipe = { Neurolyzer=1, ChromaticGenesis=1, Matrix=2, Chromatic=2, HyperVolt=10, Origin=10, Virtual=30, Bounded=200, Aether=200, Exotic=400, WATT=2400, Powered=4000 }
+    },
+    {
+        name = "Heavenly Device",
+        effect = "+1500% Luck, +120% Roll Speed",
+        recipe = { GenesisDrive=1, ARCHANGEL=1, PROPHECY=1, ICARUS=10, Faith=15, HOPE=175, DivineAngel=500 }
+    },
+}
+
+-- LEFT HAND GAUNTLETS
+local LEFT_GAUNTLETS = {
+    {
+        name = "Dark Matter Device",
+        effect = "0.1% chance +1 Point per bonus roll",
+        recipe = { Ink=1, Glock=1, Ash=1 }
+    },
+    {
+        name = "Gemstone Gauntlet",
+        effect = "0-30% Luck hoặc Roll Speed per second (random)",
+        recipe = { Topaz=1, Emerald=1, Ruby=1, Aquamarine=1, Sapphire=1, Quartz=1 }
+    },
+    {
+        name = "Jackpot Gauntlet",
+        effect = "+77% Luck, +7% Roll Speed, +$77 khi roll Jackpot",
+        recipe = { Jackpot=77, Rare=777, Gilded=77 }
+    },
+    {
+        name = "Flesh Device",
+        effect = "Mỗi roll worth 1.3x luck",
+        recipe = { HAZARD=30, Corrosive=15, Astral=1, Undead=10, Crystallized=6000, Bleeding=30, Ink=190 }
+    },
+    {
+        name = "Gravitational Device",
+        effect = "Bonus roll 2x → 6x luck",
+        recipe = { BOUNDED=3, Gravitational=1, Exotic=5, Magnetic=75, Diaboli=152, Sidereum=31, Nautilus=5, Precious=152, GearBasing=15 }
+    },
+    {
+        name = "Darkshader",
+        effect = "Bonus Roll Cooldown 10→5. Next 10 rolls x2.5 luck mỗi 20 rolls",
+        recipe = { Arcane_Dark=1, Undefined=20, Twilight=5, Lunar=2700, LEAK=1150, HAZARD=2250, Bleeding=3500, Ink=22000, Diaboli=14800, Forbidden=37000 }
+    },
+    {
+        name = "Pole Light Core Device",
+        effect = "+500% Luck, 5 stacks skip mỗi 30 rolls",
+        recipe = { Blizzard=3, Sirius=3, HyperVolt=4, MagneticReversePolarity=25, Permafrost=300, Jade=100, Solar=5000, Sidereum=7250, Magnetic=9000, Origin=5 }
+    },
+    {
+        name = "Unfathomable Ruins",
+        effect = "Bonus Roll disabled, Basic Luck buff x100 mỗi 1000 rolls",
+        recipe = { Ruins=1, Runic=3, Ethereal=4, Harnessed=10, Origin=15, Twilight=50, Kyawthuite=50, Jade=50, Flow=2000, Flora=10000 }
+    },
+}
+
+-- STELLA POTIONS — Craft tại Stella's Cauldron trong cave
+-- Source: techwiser.com potions guide (April 2026), sol-rng.fandom.com/wiki/Fortune_Potions
+local STELLA_POTIONS = {
+    -- Fortune Potions (updated: fandom wiki nói +50%/+75%/+100%, các site cũ nói khác — dùng fandom)
+    {
+        name = "Fortune Potion I",
+        effect = "+50% Luck, 5 phút",
+        recipe = { LuckyPotion=10 }
+    },
+    {
+        name = "Fortune Potion II",
+        effect = "+75% Luck, 5 phút",
+        recipe = { LuckyPotion=25 }
+    },
+    {
+        name = "Fortune Potion III",
+        effect = "+100% Luck, 5 phút",
+        recipe = { LuckyPotion=50 }
+    },
+    -- Haste Potions (techwiser April 2026)
+    {
+        name = "Haste Potion I",
+        effect = "+20% Roll Speed, 5 phút",
+        recipe = { SpeedPotion=10 }
+    },
+    {
+        name = "Haste Potion II",
+        effect = "+25% Roll Speed, 5 phút",
+        recipe = { SpeedPotion=25 }
+    },
+    {
+        name = "Haste Potion III",
+        effect = "+30% Roll Speed, 5 phút",
+        recipe = { SpeedPotion=50 }
+    },
+    -- Other craftable potions (techwiser + deltia's)
+    {
+        name = "Rage Potion",
+        effect = "+35% Roll Speed, 10 phút",
+        recipe = { SpeedPotion=10, Diaboli=1, Rage=5 }
+    },
+    {
+        name = "Diver Potion",
+        effect = "+40% Roll Speed, 10 phút",
+        recipe = { SpeedPotion=20, Nautilus=1 }
+    },
+    {
+        name = "Zombie Potion",
+        effect = "+150% Luck, 10 phút",
+        recipe = { LuckyPotion=10, Undead=1, Bleeding=1 }
+    },
+    {
+        name = "Jewelry Potion",
+        effect = "+120% Luck, 10 phút",
+        recipe = { LuckyPotion=20, Ruby=1, Emerald=1, Sapphire=1, Topaz=1, Aquamarine=1 }
+    },
+    {
+        name = "Heavenly Potion I",
+        effect = "+1,000,000% Luck, 1 roll",
+        recipe = { LuckyPotion=100, Divinus=50, Gilded=20, Celestial=1 }
+    },
+    {
+        name = "Heavenly Potion II",
+        effect = "+10,000,000% Luck, 1 roll",
+        recipe = { HeavenlyPotionI=2, LuckyPotion=125, Divinus=75, Gilded=50, Exotic=1 }
+    },
+    {
+        name = "Universe Potion I",
+        effect = "Roll Starfall auras ở biome khác, 10 phút",
+        recipe = { LuckyPotion=10, Rare=15, Comet=2 }
+    },
+}
+
+-- Mari items to buy (nguồn: dotesports, thenerdstash)
+local MARI_BUY = {
+    "LuckyPotion","SpeedPotion","HeavenlyPotion","VoidCoin",
+    "StellaStar","StellaCandle","MerchantTracker","PortableDevice",
+    "OblivionPotion","BindingPotion","MixedPotion","WarpPotion",
+    "LuckyPotionL","LuckyPotionXL","SpeedPotionL","SpeedPotionXL",
+}
+
+-- ============================================================
+-- UTILITY
+-- ============================================================
+
+local function GetNPCPart(kw)
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("Model") and v.Name:lower():find(kw:lower()) then
+            return v.PrimaryPart or v:FindFirstChild("HumanoidRootPart") or v:FindFirstChildWhichIsA("BasePart")
+        end
+    end
+end
+
+local function WalkTo(pos)
+    if not (Hum and Hum.Health > 0) then return end
+    Hum:MoveTo(pos)
+    local done = false
+    local c = Hum.MoveToFinished:Connect(function() done=true end)
+    local t = 0; while not done and t < 10 do task.wait(0.1); t=t+0.1 end; c:Disconnect()
+end
+
+local function FireR(name, ...)
+    local r = ReplicatedStorage:FindFirstChild(name,true) or Workspace:FindFirstChild(name,true)
+    if not r then return end
+    if r:IsA("RemoteEvent") then r:FireServer(...) end
+    if r:IsA("RemoteFunction") then return r:InvokeServer(...) end
+end
+
+local function PressP(kw)
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("ProximityPrompt") then
+            if (v.ActionText..v.ObjectText):lower():find(kw:lower()) then
+                pcall(fireproximityprompt, v); return true
+            end
+        end
+    end
+end
+
+local function CheckPass(id)
+    local ok, r = pcall(function() return MarketplaceService:UserOwnsGamePassAsync(LP.UserId, id) end)
+    return ok and r
+end
+
+-- ============================================================
+-- STATE
+-- ============================================================
+
+local S = {
+    Fish=false, Craft=false, Boss=false, Merchant=false, Quest=false,
+    MMode="All", JAmount=1, HasTelePass=false,
+    SelectedRight={}, SelectedLeft={}, SelectedPotions={},
+}
+local TELE_PASS = 857748629
+
+-- ============================================================
+-- TAB 1 — AUTO FISH
+-- Nguồn: progameguides, roonby 2026
+-- Đứng gần ocean → Fish button hiện → reel bar → bán Captain Flarg
+-- ============================================================
+
+local OCEAN_SPOTS = {
+    Vector3.new(-190,3,0), Vector3.new(190,3,0),
+    Vector3.new(0,3,190),  Vector3.new(0,3,-190),
+    Vector3.new(-150,3,150),Vector3.new(150,3,150),
+    Vector3.new(-150,3,-150),Vector3.new(150,3,-150),
+}
+
+local function AutoFishLoop()
+    while S.Fish do
+        -- Tìm ocean spot gần nhất
+        local best, bd = OCEAN_SPOTS[1], math.huge
+        for _, v in ipairs(OCEAN_SPOTS) do
+            local d=(Root.Position-v).Magnitude; if d<bd then bd=d;best=v end
+        end
+        WalkTo(best); task.wait(0.5)
+        -- Nhấn Fish
+        if not PressP("Fish") then
+            for _, n in ipairs({"Fish","StartFishing","BeginFish","FishCast"}) do FireR(n) end
+        end
+        task.wait(0.4)
+        -- Handle reel bar
+        for i=1,30 do
+            if not S.Fish then break end
+            PressP("Reel"); PressP("Catch")
+            FireR("ReelFish"); FireR("CatchFish"); FireR("CompleteFish")
+            task.wait(0.1)
+        end
+        task.wait(0.3)
+        -- Auto sell tại Captain Flarg mỗi ~10 lần
+        if math.random(1,8)==1 then
+            local flarg = GetNPCPart("Flarg") or GetNPCPart("FishNPC") or GetNPCPart("Captain")
+            if flarg then
+                WalkTo(flarg.Position+Vector3.new(0,0,3)); task.wait(0.3)
+                PressP("Sell"); FireR("SellFish"); FireR("SellAllFish")
+                task.wait(0.4)
+            end
+        end
+    end
+    -- Sell khi tắt
+    local flarg=GetNPCPart("Flarg") or GetNPCPart("Captain")
+    if flarg then WalkTo(flarg.Position+Vector3.new(0,0,3)); PressP("Sell"); FireR("SellAllFish") end
+end
+
+-- ============================================================
+-- TAB 2 — AUTO CRAFT (chọn items muốn craft)
+-- ============================================================
+
+local function TryCraft(npcKW, itemName, recipe)
+    local part = GetNPCPart(npcKW)
+    if not part then return false end
+    WalkTo(part.Position+Vector3.new(0,0,3)); task.wait(0.4)
+    PressP("Craft"); task.wait(0.3)
+    for _, n in ipairs({"Craft","CraftItem","RequestCraft","BrewPotion","CraftPotion","CraftGauntlet"}) do
+        FireR(n, itemName); FireR(n, itemName, recipe)
+    end
+    task.wait(0.7)
+    return true
+end
+
+local function AutoCraftSelected()
+    S.Craft = true
+    -- Gauntlets đã chọn
+    for _, name in ipairs(S.SelectedRight) do
+        if not S.Craft then break end
+        for _, g in ipairs(RIGHT_GAUNTLETS) do
+            if g.name == name then TryCraft("Jake", g.name, g.recipe); break end
+        end
+    end
+    for _, name in ipairs(S.SelectedLeft) do
+        if not S.Craft then break end
+        for _, g in ipairs(LEFT_GAUNTLETS) do
+            if g.name == name then TryCraft("Jake", g.name, g.recipe); break end
+        end
+    end
+    -- Potions đã chọn
+    for _, name in ipairs(S.SelectedPotions) do
+        if not S.Craft then break end
+        for _, p in ipairs(STELLA_POTIONS) do
+            if p.name == name then TryCraft("Stella", p.name, p.recipe); break end
+        end
+    end
+    S.Craft = false
+end
+
+-- ============================================================
+-- TAB 3 — AUTO BOSS
+-- Nguồn: findingdulcinea.com, techwiser.com raid hell guide
+-- Bay lên → spam abilities → bám boss
+-- ============================================================
+
+local BOSS_KEYS   = {"Boss","SandWorm","Crawler","Amalgamation","RaidBoss","Worm"}
+local ABILITY_KEYS= {"UseAbility","Skill1","Skill2","Skill3","AttackBoss","FireAbility","UseSkill","BossAttack"}
+local FLY_H = 85
+
+local function GetBoss()
+    for _, k in ipairs(BOSS_KEYS) do
+        local p=GetNPCPart(k); if p then return p end
+    end
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("Model") then
+            local h=v:FindFirstChildOfClass("Humanoid")
+            if h and h.MaxHealth>500 and h.Health>0 then
+                local bp=v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+                if bp then return bp end
+            end
+        end
+    end
+end
+
+local function Fly(on)
+    Hum.PlatformStand=on
+    local bv=Root:FindFirstChild("__AxiomBV")
+    if on and not bv then
+        bv=Instance.new("BodyVelocity"); bv.Name="__AxiomBV"
+        bv.MaxForce=Vector3.one*1e9; bv.Velocity=Vector3.zero; bv.Parent=Root
+    elseif not on and bv then bv:Destroy() end
+end
+
+local function AutoBossLoop()
+    local boss=GetBoss()
+    if not boss then S.Boss=false; warn("[Axiom] Không thấy boss boss man"); return end
+    Fly(true)
+    while S.Boss do
+        boss=GetBoss(); if not boss then break end
+        local bp=boss.Position
+        Root.CFrame=CFrame.new(bp.X, bp.Y+FLY_H, bp.Z)
+            *CFrame.Angles(0,math.rad(math.random(0,360)),0)
+        Root.CFrame=CFrame.lookAt(Root.Position, Vector3.new(bp.X, Root.Position.Y-1, bp.Z))
+        for _,a in ipairs(ABILITY_KEYS) do pcall(FireR,a); pcall(FireR,a,boss.Parent) end
+        task.wait(0.15)
+    end
+    Fly(false)
+end
+
+-- ============================================================
+-- TAB 4 — AUTO MERCHANT
+-- ============================================================
+
+local function FindMerchant(color)
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("Model") then
+            local n=v.Name:lower()
+            if color=="white" and (n:find("mari") or n:find("travel")) then return v end
+            if color=="purple" and (n:find("jester") or n:find("black")) then return v end
+        end
+    end
+end
+
+local function TeleOrWalk(model)
+    if not model then return end
+    local p=model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart")
+    if not p then return end
+    if S.HasTelePass then
+        FireR("MerchantTeleport"); FireR("TeleportToMerchant"); task.wait(1.5)
+    else WalkTo(p.Position+Vector3.new(0,0,3)) end
+end
+
+local function HandleMari()
+    local m=FindMerchant("white"); if not m then return end
+    TeleOrWalk(m); task.wait(0.4)
+    PressP("Shop"); PressP("Buy"); task.wait(0.3)
+    for _, item in ipairs(MARI_BUY) do
+        FireR("BuyItem",item); FireR("PurchaseItem",item,1); task.wait(0.2)
+    end
+end
+
+local function HandleJester()
+    local m=FindMerchant("purple"); if not m then return end
+    TeleOrWalk(m); task.wait(0.4)
+    PressP("Trade"); task.wait(0.3)
+    local inv=LP:FindFirstChild("Backpack")
+    if inv then
+        for _, t in ipairs(inv:GetChildren()) do
+            local amt=math.min(S.JAmount,9999)
+            FireR("TradeItem",t.Name,amt); FireR("ExchangeItem",t.Name,amt); task.wait(0.2)
+        end
+    end
+    FireR("BuyFromJester","OblivionPotion"); FireR("BuyFromJester","HeavenlyPotion")
+    FireR("BuyFromJester","StellaStar"); task.wait(0.3)
+end
+
+local function HandleRin()
+    local p=GetNPCPart("Rin"); if not p then return end
+    if S.HasTelePass then FireR("MerchantTeleport"); task.wait(1)
+    else WalkTo(p.Position+Vector3.new(0,0,3)) end
+    task.wait(0.4); PressP("Quest"); PressP("Tail"); task.wait(0.3)
+    local full=false
+    pcall(function()
+        local d=FireR("GetPlayerData")
+        if d and d.TailCount and d.TailSlots then full=(d.TailCount>=d.TailSlots) end
+    end)
+    if not full then
+        FireR("AcceptQuest","TailQuest"); FireR("StartTailQuest"); task.wait(0.4)
+        for _=1,3 do FireR("CompleteTailQuest"); FireR("ClaimTailReward"); task.wait(0.5) end
+    end
+end
+
+local function AutoMerchantLoop()
+    S.HasTelePass=CheckPass(TELE_PASS)
+    while S.Merchant do
+        local m=S.MMode
+        if m=="Mari" or m=="All" then HandleMari() end; task.wait(0.5)
+        if m=="Jester" or m=="All" then HandleJester() end; task.wait(0.5)
+        if m=="Rin" or m=="All" then HandleRin() end
+        task.wait(3)
+    end
+end
+
+-- ============================================================
+-- TAB 5 — AUTO QUEST
+-- Nguồn: sportskeeda.com, techwiser.com achievements
+-- ============================================================
+
+local function DoDailyQuest()
+    for _, kw in ipairs({"Lime","DailyQuest","QuestGiver","Daily"}) do
+        local p=GetNPCPart(kw)
+        if p then
+            WalkTo(p.Position+Vector3.new(0,0,3)); task.wait(0.4)
+            PressP("Quest"); task.wait(0.3)
+            FireR("AcceptDailyQuest"); FireR("ClaimDailyReward"); FireR("CompleteDailyQuest")
+            task.wait(0.4)
+        end
+    end
+end
+
+local function DoQuestBoard()
+    local jake=GetNPCPart("Jake")
+    if jake then WalkTo(jake.Position+Vector3.new(6,0,6)) end
+    task.wait(0.4); PressP("QuestBoard"); PressP("Quest Board"); task.wait(0.3)
+    for i=1,3 do FireR("AcceptBoardQuest",i); FireR("TakeBoardQuest",i); task.wait(0.3) end
+    task.wait(0.5)
+    for _=1,5 do
+        FireR("CompleteBoardQuest"); FireR("TurnInQuest")
+        FireR("ClaimQuestReward"); FireR("ClaimBoardReward"); task.wait(0.4)
+    end
+end
+
+local function AutoQuestLoop()
+    while S.Quest do
+        DoDailyQuest(); task.wait(1); DoQuestBoard(); task.wait(5)
+    end
+end
+
+-- ============================================================
+-- GUI
+-- ============================================================
+
+local SG=Instance.new("ScreenGui")
+SG.Name="AxiomV3"; SG.ResetOnSpawn=false
+SG.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+SG.Parent=game:GetService("CoreGui")
+
+-- Window
+local MW=Instance.new("Frame",SG)
+MW.Size=UDim2.new(0,480,0,500); MW.Position=UDim2.new(0.5,-240,0.5,-250)
+MW.BackgroundColor3=Color3.fromRGB(8,8,18); MW.BorderSizePixel=0; MW.ClipsDescendants=true
+Instance.new("UICorner",MW).CornerRadius=UDim.new(0,12)
+local MWS=Instance.new("UIStroke",MW); MWS.Color=Color3.fromRGB(80,0,200); MWS.Thickness=2
+
+-- Titlebar
+local TB=Instance.new("Frame",MW)
+TB.Size=UDim2.new(1,0,0,34); TB.BackgroundColor3=Color3.fromRGB(22,0,65); TB.BorderSizePixel=0
+Instance.new("UICorner",TB).CornerRadius=UDim.new(0,12)
+local TL=Instance.new("TextLabel",TB)
+TL.Size=UDim2.new(1,-90,1,0); TL.Position=UDim2.new(0,12,0,0)
+TL.BackgroundTransparency=1; TL.Text="⚙ AXIOM SOL RNG — Eon 1 (2026)"
+TL.TextColor3=Color3.fromRGB(200,150,255); TL.TextScaled=true
+TL.Font=Enum.Font.GothamBold; TL.TextXAlignment=Enum.TextXAlignment.Left
+
+-- Drag
+local dr,ds,sp=false
+TB.InputBegan:Connect(function(i)
+    if i.UserInputType==Enum.UserInputType.MouseButton1 then dr=true;ds=i.Position;sp=MW.Position end
+end)
+UserInputService.InputChanged:Connect(function(i)
+    if dr and i.UserInputType==Enum.UserInputType.MouseMovement then
+        local d=i.Position-ds
+        MW.Position=UDim2.new(sp.X.Scale,sp.X.Offset+d.X,sp.Y.Scale,sp.Y.Offset+d.Y)
+    end
+end)
+UserInputService.InputEnded:Connect(function(i)
+    if i.UserInputType==Enum.UserInputType.MouseButton1 then dr=false end
+end)
+
+-- Min button
+local MB=Instance.new("TextButton",TB)
+MB.Size=UDim2.new(0,26,0,20); MB.Position=UDim2.new(1,-30,0.5,-10)
+MB.BackgroundColor3=Color3.fromRGB(55,35,110); MB.Text="—"
+MB.TextColor3=Color3.new(1,1,1); MB.Font=Enum.Font.GothamBold; MB.TextScaled=true
+Instance.new("UICorner",MB).CornerRadius=UDim.new(0,5)
+
+local CF=Instance.new("Frame",MW)
+CF.Size=UDim2.new(1,0,1,-34); CF.Position=UDim2.new(0,0,0,34); CF.BackgroundTransparency=1
+
+local mined=false
+MB.MouseButton1Click:Connect(function()
+    mined=not mined; CF.Visible=not mined
+    MW.Size=mined and UDim2.new(0,480,0,34) or UDim2.new(0,480,0,500)
+end)
+
+-- Tab setup
+local TNAMES={"🎣 Fish","⚗ Craft","💀 Boss","🛒 Merchant","📋 Quest"}
+local tBtns,tPages={},{}
+local TabBar=Instance.new("Frame",CF)
+TabBar.Size=UDim2.new(1,0,0,30); TabBar.BackgroundColor3=Color3.fromRGB(12,4,28); TabBar.BorderSizePixel=0
+
+for i,n in ipairs(TNAMES) do
+    local b=Instance.new("TextButton",TabBar)
+    b.Size=UDim2.new(1/#TNAMES,-2,1,-4); b.Position=UDim2.new((i-1)/#TNAMES,1,0,2)
+    b.BackgroundColor3=Color3.fromRGB(20,8,48); b.BorderSizePixel=0
+    b.Text=n; b.TextScaled=true; b.Font=Enum.Font.GothamBold
+    b.TextColor3=Color3.fromRGB(145,115,195)
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,5)
+    tBtns[i]=b
+    local pg=Instance.new("ScrollingFrame",CF)
+    pg.Size=UDim2.new(1,0,1,-32); pg.Position=UDim2.new(0,0,0,32)
+    pg.BackgroundTransparency=1; pg.BorderSizePixel=0
+    pg.ScrollBarThickness=4; pg.ScrollBarImageColor3=Color3.fromRGB(90,40,190)
+    pg.Visible=(i==1)
+    local ul=Instance.new("UIListLayout",pg)
+    ul.Padding=UDim.new(0,4); ul.SortOrder=Enum.SortOrder.LayoutOrder
+    local up=Instance.new("UIPadding",pg)
+    up.PaddingLeft=UDim.new(0,7); up.PaddingRight=UDim.new(0,7); up.PaddingTop=UDim.new(0,6)
+    ul:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        pg.CanvasSize=UDim2.new(0,0,0,ul.AbsoluteContentSize.Y+10)
+    end)
+    tPages[i]=pg
+end
+
+local function SetTab(idx)
+    for i,p in ipairs(tPages) do
+        p.Visible=(i==idx)
+        tBtns[i].BackgroundColor3=(i==idx) and Color3.fromRGB(60,12,140) or Color3.fromRGB(20,8,48)
+        tBtns[i].TextColor3=(i==idx) and Color3.fromRGB(235,215,255) or Color3.fromRGB(145,115,195)
+    end
+end
+for i,b in ipairs(tBtns) do b.MouseButton1Click:Connect(function() SetTab(i) end) end
+SetTab(1)
+
+-- Helpers
+local function MkLbl(pg,txt,ord,col)
+    local l=Instance.new("TextLabel",pg); l.Size=UDim2.new(1,-2,0,18); l.LayoutOrder=ord or 0
+    l.BackgroundTransparency=1; l.Text=txt; l.TextScaled=true; l.Font=Enum.Font.Gotham
+    l.TextColor3=col or Color3.fromRGB(140,100,200); l.TextXAlignment=Enum.TextXAlignment.Left
+end
+
+local function MkToggle(pg,lbl,key,cb,ord)
+    local f=Instance.new("Frame",pg); f.Size=UDim2.new(1,-2,0,34)
+    f.BackgroundColor3=Color3.fromRGB(15,6,30); f.BorderSizePixel=0; f.LayoutOrder=ord or 0
+    Instance.new("UICorner",f).CornerRadius=UDim.new(0,7)
+    local l=Instance.new("TextLabel",f); l.Size=UDim2.new(0.72,0,1,0); l.Position=UDim2.new(0,8,0,0)
+    l.BackgroundTransparency=1; l.Text=lbl; l.TextScaled=true; l.Font=Enum.Font.Gotham
+    l.TextColor3=Color3.fromRGB(200,185,240); l.TextXAlignment=Enum.TextXAlignment.Left
+    local b=Instance.new("TextButton",f); b.Size=UDim2.new(0,55,0,22)
+    b.Position=UDim2.new(1,-60,0.5,-11); b.BackgroundColor3=Color3.fromRGB(40,40,50)
+    b.Text="OFF"; b.TextColor3=Color3.fromRGB(180,180,180); b.Font=Enum.Font.GothamBold; b.TextScaled=true
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,5)
+    local function rf()
+        local on=S[key]
+        b.BackgroundColor3=on and Color3.fromRGB(50,195,85) or Color3.fromRGB(40,40,50)
+        b.Text=on and "ON" or "OFF"
+        b.TextColor3=on and Color3.fromRGB(10,10,10) or Color3.fromRGB(180,180,180)
+    end
+    b.MouseButton1Click:Connect(function() S[key]=not S[key]; rf(); if cb then cb(S[key]) end end)
+end
+
+local function MkBtn(pg,txt,cb,ord)
+    local b=Instance.new("TextButton",pg); b.Size=UDim2.new(1,-2,0,34); b.LayoutOrder=ord or 0
+    b.BackgroundColor3=Color3.fromRGB(42,12,95); b.BorderSizePixel=0
+    b.Text=txt; b.TextColor3=Color3.fromRGB(220,200,255); b.Font=Enum.Font.GothamBold; b.TextScaled=true
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,7)
+    b.MouseButton1Click:Connect(cb); return b
+end
+
+local function MkInput(pg,lbl,def,cb,ord)
+    local f=Instance.new("Frame",pg); f.Size=UDim2.new(1,-2,0,32)
+    f.BackgroundColor3=Color3.fromRGB(15,6,30); f.BorderSizePixel=0; f.LayoutOrder=ord or 0
+    Instance.new("UICorner",f).CornerRadius=UDim.new(0,7)
+    local l=Instance.new("TextLabel",f); l.Size=UDim2.new(0.55,0,1,0); l.Position=UDim2.new(0,8,0,0)
+    l.BackgroundTransparency=1; l.Text=lbl; l.TextScaled=true; l.Font=Enum.Font.Gotham
+    l.TextColor3=Color3.fromRGB(200,185,240); l.TextXAlignment=Enum.TextXAlignment.Left
+    local bx=Instance.new("TextBox",f); bx.Size=UDim2.new(0,100,0,22)
+    bx.Position=UDim2.new(1,-106,0.5,-11); bx.BackgroundColor3=Color3.fromRGB(26,10,52)
+    bx.TextColor3=Color3.fromRGB(220,200,255); bx.Font=Enum.Font.Gotham; bx.TextScaled=true
+    bx.Text=tostring(def); bx.ClearTextOnFocus=false
+    Instance.new("UICorner",bx).CornerRadius=UDim.new(0,5)
+    bx.FocusLost:Connect(function() if cb then cb(bx.Text) end end)
+end
+
+local function MkDrop(pg,lbl,opts,key,ord)
+    local f=Instance.new("Frame",pg); f.Size=UDim2.new(1,-2,0,32)
+    f.BackgroundColor3=Color3.fromRGB(15,6,30); f.BorderSizePixel=0; f.LayoutOrder=ord or 0
+    Instance.new("UICorner",f).CornerRadius=UDim.new(0,7)
+    local l=Instance.new("TextLabel",f); l.Size=UDim2.new(0.5,0,1,0); l.Position=UDim2.new(0,8,0,0)
+    l.BackgroundTransparency=1; l.Text=lbl; l.TextScaled=true; l.Font=Enum.Font.Gotham
+    l.TextColor3=Color3.fromRGB(200,185,240); l.TextXAlignment=Enum.TextXAlignment.Left
+    local idx=1; S[key]=opts[idx]
+    local b=Instance.new("TextButton",f); b.Size=UDim2.new(0,110,0,22)
+    b.Position=UDim2.new(1,-116,0.5,-11); b.BackgroundColor3=Color3.fromRGB(42,12,95)
+    b.Text=opts[idx]; b.TextColor3=Color3.fromRGB(220,200,255); b.Font=Enum.Font.Gotham; b.TextScaled=true
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,5)
+    b.MouseButton1Click:Connect(function() idx=(idx%#opts)+1; S[key]=opts[idx]; b.Text=opts[idx] end)
+end
+
+-- Checkbox list cho craft
+local function MkCheckList(pg, items, selKey, headerTxt, startOrd)
+    MkLbl(pg, headerTxt, startOrd, Color3.fromRGB(200,150,255))
+    for i, item in ipairs(items) do
+        local f=Instance.new("Frame",pg); f.Size=UDim2.new(1,-2,0,26)
+        f.BackgroundColor3=Color3.fromRGB(13,5,25); f.BorderSizePixel=0; f.LayoutOrder=startOrd+i
+        Instance.new("UICorner",f).CornerRadius=UDim.new(0,6)
+        local l=Instance.new("TextLabel",f); l.Size=UDim2.new(0.78,0,1,0); l.Position=UDim2.new(0,28,0,0)
+        l.BackgroundTransparency=1; l.TextScaled=true; l.Font=Enum.Font.Gotham
+        l.TextColor3=Color3.fromRGB(200,185,240); l.TextXAlignment=Enum.TextXAlignment.Left
+        l.Text=item.name.." | "..item.effect
+        local cb=Instance.new("TextButton",f); cb.Size=UDim2.new(0,20,0,20)
+        cb.Position=UDim2.new(0,4,0.5,-10); cb.BackgroundColor3=Color3.fromRGB(30,10,60)
+        cb.Text=""; cb.Font=Enum.Font.GothamBold; cb.TextScaled=true
+        Instance.new("UICorner",cb).CornerRadius=UDim.new(0,4)
+        local checked=false
+        local function toggle()
+            checked=not checked
+            cb.BackgroundColor3=checked and Color3.fromRGB(80,200,100) or Color3.fromRGB(30,10,60)
+            cb.Text=checked and "✓" or ""
+            cb.TextColor3=Color3.fromRGB(10,10,10)
+            local sel=S[selKey]
+            if checked then
+                local found=false
+                for _,v in ipairs(sel) do if v==item.name then found=true; break end end
+                if not found then table.insert(sel,item.name) end
+            else
+                for i2,v in ipairs(sel) do if v==item.name then table.remove(sel,i2); break end end
+            end
+        end
+        cb.MouseButton1Click:Connect(toggle)
+    end
+end
+
+-- ===== TAB 1: FISH =====
+local p1=tPages[1]
+MkLbl(p1,"⟨ AUTO FISH ⟩",1,Color3.fromRGB(100,200,255))
+MkToggle(p1,"Auto Fish Loop","Fish",function(on) if on then task.spawn(AutoFishLoop) end end,2)
+MkLbl(p1,"• Di đến ocean spot gần nhất",3)
+MkLbl(p1,"• Fish button → reel bar auto",4)
+MkLbl(p1,"• Tự bán tại Captain Flarg",5)
+MkLbl(p1,"• Biome fish: Windy/Rainy/Starfall/Corruption",6)
+MkLbl(p1,"• Rare fish ở góc Hard/Normal",7)
+
+-- ===== TAB 2: CRAFT =====
+local p2=tPages[2]
+MkLbl(p2,"⟨ AUTO CRAFT ⟩ — Tích chọn rồi bấm Craft",1,Color3.fromRGB(255,200,100))
+MkLbl(p2,"⚠ 1 lần craft/session do game limit",2,Color3.fromRGB(255,100,100))
+
+local craftBusy=false
+MkBtn(p2,"▶ CRAFT CÁC ĐỒ ĐÃ CHỌN",function()
+    if craftBusy then return end
+    craftBusy=true
+    task.spawn(function() AutoCraftSelected(); craftBusy=false end)
+end,3)
+
+-- Right hand list
+MkCheckList(p2, RIGHT_GAUNTLETS, "SelectedRight", "── JAKE RIGHT HAND ──", 4)
+-- Left hand list
+MkCheckList(p2, LEFT_GAUNTLETS, "SelectedLeft", "── JAKE LEFT HAND ──", 4+#RIGHT_GAUNTLETS+2)
+-- Potions list
+MkCheckList(p2, STELLA_POTIONS, "SelectedPotions", "── STELLA POTIONS ──", 4+#RIGHT_GAUNTLETS+#LEFT_GAUNTLETS+4)
+
+-- ===== TAB 3: BOSS =====
+local p3=tPages[3]
+MkLbl(p3,"⟨ AUTO BOSS ⟩",1,Color3.fromRGB(255,100,100))
+MkToggle(p3,"Auto Boss","Boss",function(on) if on then task.spawn(AutoBossLoop) end end,2)
+MkLbl(p3,"• Bay "..FLY_H.." studs trên boss",3)
+MkLbl(p3,"• Spam abilities mỗi 0.15s",4)
+MkLbl(p3,"• Bám theo boss khi relocate",5)
+MkLbl(p3,"• Hạ cánh khi boss chết",6)
+MkLbl(p3,"Hỗ trợ: Sand Worm (Crawler) + Amalgamation Hell",7)
+MkLbl(p3,"Best aura cho raid: Archangel",8)
+MkLbl(p3,"Amalgamation Hell: boss heal ở 20% HP",9)
+MkLbl(p3,"Boss HP scale theo số player trong raid",10)
+
+-- ===== TAB 4: MERCHANT =====
+local p4=tPages[4]
+MkLbl(p4,"⟨ AUTO MERCHANT ⟩",1,Color3.fromRGB(255,220,100))
+MkDrop(p4,"Target Merchant",{"All","Mari","Jester","Rin"},"MMode",2)
+MkInput(p4,"Jester Trade Amount",1,function(v)
+    local n=tonumber(v); if n then S.JAmount=math.clamp(math.floor(n),1,9999) end
+end,3)
+MkToggle(p4,"Auto Merchant Loop","Merchant",function(on) if on then task.spawn(AutoMerchantLoop) end end,4)
+MkLbl(p4,"Mari (beam trắng, 97%): spawn 15p-1h",5)
+MkLbl(p4,"→ Mua Lucky/Speed/Heavenly/VoidCoin/StellaStar...",6)
+MkLbl(p4,"Jester (beam tím, 3%): trade items→Dark Points",7)
+MkLbl(p4,"→ Dùng Dark Points mua OblivionPotion",8)
+MkLbl(p4,"Rin: Tail Quest nếu slot chưa đầy",9)
+MkLbl(p4,"Merchant Teleporter pass (40R) → tự detect",10)
+MkLbl(p4,"Không có pass → đi bộ tới merchant",11)
+
+-- ===== TAB 5: QUEST =====
+local p5=tPages[5]
+MkLbl(p5,"⟨ AUTO QUEST ⟩",1,Color3.fromRGB(100,255,150))
+MkToggle(p5,"Auto Daily + Board Quest","Quest",function(on) if on then task.spawn(AutoQuestLoop) end end,2)
+MkLbl(p5,"Daily: Lime NPC → accept → claim",3)
+MkLbl(p5,"Quest Board: cạnh Leaderboard gần Jake",4)
+MkLbl(p5,"→ Tối đa 5 quest hiện, nhận 3 cùng lúc",5)
+MkLbl(p5,"→ Refresh mỗi 1 giờ",6)
+MkLbl(p5,"Reward Board: Lucky/Speed Potion + Heavenly Potion",7)
+MkLbl(p5,"Complete 2000 quests → 20x Heavenly Potion",8)
+
+print("[AXIOM] v3 loaded — Eon 1 data, real wiki, no cap boss man 🔥")
