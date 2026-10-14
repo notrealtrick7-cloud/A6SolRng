@@ -17,9 +17,10 @@ local Window = Library:CreateWindow({
     Title = "A6HubV1.121",
     Center = true,
     AutoShow = true,
-    TabPadding = 4,
+    TabPadding = 2,
     MenuFadeTime = 0.15,
-    Size = UDim2.fromOffset(470, 450)
+    Size = UDim2.fromOffset(380, 360),
+    ShowCustomCursor = false
 })
 
 local Tabs = {
@@ -562,7 +563,12 @@ MiscBox:AddButton("Anti AFK", function()
     end)
     Library:Notify("Anti AFK ON", 3)
 end)
-MiscBox:AddLabel("A6HubV1.121\nNo tele / No walkspeed")
+MiscBox:AddLabel("A6HubV1.121")
+
+MiscBox:AddButton("Toggle UI (Mobile)", function()
+    Library:Toggle()
+end)
+
 
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
@@ -572,3 +578,15 @@ SaveManager:BuildConfigSection(Tabs.Misc)
 ThemeManager:ApplyToTab(Tabs.Misc)
 
 Library:Notify("A6HubV1.121 loaded - Full Limbo", 5)
+
+-- Toggle UI with RightShift
+Library:SetWatermarkVisibility(true)
+Library:Notify("Misc tab: nut Toggle UI", 5)
+
+UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.RightShift then
+        Library:Toggle()
+    end
+end)
