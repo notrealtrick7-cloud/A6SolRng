@@ -19,7 +19,7 @@ local Window = Library:CreateWindow({
     AutoShow = true,
     TabPadding = 2,
     MenuFadeTime = 0.15,
-    Size = UDim2.fromOffset(380, 360),
+    Size = UDim2.fromOffset(420, 380),
     ShowCustomCursor = false
 })
 
@@ -112,6 +112,9 @@ MainBox:AddToggle("qBoss", {Text="Auto Boss", Default=false, Callback=function(v
 MainBox:AddToggle("qMerch", {Text="Auto Merch", Default=false, Callback=function(v) flags.AutoMari=v; flags.AutoJester=v; flags.AutoRin=v end})
 MainBox:AddToggle("qQuest", {Text="Auto Quest", Default=false, Callback=function(v) flags.AutoDaily=v; flags.AutoBoard=v end})
 MainBox:AddToggle("qLimbo", {Text="Auto Limbo", Default=false, Callback=function(v) flags.AutoLimbo=v end})
+MainBox:AddButton("Toggle UI", function()
+    Library:Toggle()
+end)
 
 -- ========== FISH ==========
 local FishBox = Tabs.Fish:AddLeftGroupbox("Auto Fish")
@@ -577,7 +580,52 @@ SaveManager:SetFolder("A6HubV1.121")
 SaveManager:BuildConfigSection(Tabs.Misc)
 ThemeManager:ApplyToTab(Tabs.Misc)
 
+-- Green theme (Linoria style)
+local greenTheme = {
+    FontColor = Color3.fromRGB(255, 255, 255),
+    MainColor = Color3.fromRGB(20, 25, 20),
+    BackgroundColor = Color3.fromRGB(15, 20, 15),
+    AccentColor = Color3.fromRGB(0, 200, 80),
+    OutlineColor = Color3.fromRGB(40, 50, 40),
+}
+pcall(function()
+    ThemeManager:SetTheme("Green")
+end)
+pcall(function()
+    for k,v in pairs(greenTheme) do
+        if Library[k] ~= nil then Library[k] = v end
+    end
+    if Library.AccentColor then Library.AccentColor = greenTheme.AccentColor end
+    if Library.MainColor then Library.MainColor = greenTheme.MainColor end
+    if Library.BackgroundColor then Library.BackgroundColor = greenTheme.BackgroundColor end
+    if Library.OutlineColor then Library.OutlineColor = greenTheme.OutlineColor end
+end)
+-- force update
+pcall(function()
+    Library.AccentColor = Color3.fromRGB(0, 200, 80)
+    Library.MainColor = Color3.fromRGB(18, 22, 18)
+    Library.BackgroundColor = Color3.fromRGB(12, 16, 12)
+    Library.OutlineColor = Color3.fromRGB(35, 45, 35)
+    Library.FontColor = Color3.fromRGB(230, 255, 230)
+end)
+
 Library:Notify("A6HubV1.121 loaded - Full Limbo", 5)
+pcall(function()
+    Library.ShowCustomCursor = false
+    if getgenv then getgenv().Linoria = getgenv().Linoria or {} end
+    -- hide custom cursor image if exists
+    for _,g in pairs(game:GetService("CoreGui"):GetDescendants()) do
+        if g:IsA("ImageLabel") and (g.Name:lower():find("cursor") or g.Image:find("cursor")) then
+            g.Visible = false
+            g.ImageTransparency = 1
+        end
+    end
+    for _,g in pairs(LP.PlayerGui:GetDescendants()) do
+        if g:IsA("ImageLabel") and g.Name:lower():find("cursor") then
+            g.Visible = false
+        end
+    end
+end)
 
 -- Toggle UI with RightShift
 Library:SetWatermarkVisibility(true)
